@@ -3,16 +3,14 @@ import { asc, count, desc, eq } from 'drizzle-orm';
 import type { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import type { Pagination } from 'src/modules/db/db.utils';
 import { todo } from 'src/modules/todo/todo.schema';
-import { user } from './user.schema';
-import type { NewUser, User } from './user.schema';
+import { user, UsersSelect, UserUpdate, type UserInsert, type UserSelect } from './user.schema';
 
-export type UserWithTodoCount = User & { todoCount: number };
 
 @Injectable()
 export class UserService {
   constructor(@Inject('DATABASE') private readonly db: BunSQLiteDatabase) {}
 
-  async create(createUserDto: NewUser): Promise<User> {
+  async create(createUserDto: UserInsert): Promise<UserSelect> {
     const [newUser] = await this.db
       .insert(user)
       .values(createUserDto)
@@ -20,7 +18,7 @@ export class UserService {
     return newUser;
   }
 
-  async findAll(pagination: Pagination): Promise<UserWithTodoCount[]> {
+  async findAll(pagination: Pagination): Promise<UsersSelect> {
     // 1. Select users ids with pagination
     const paginatedUsers = this.db
       .$with('paginated_users')
@@ -62,7 +60,7 @@ export class UserService {
       .orderBy(desc(userTodoCounts.todoCount));
   }
 
-  async findOne(id: string): Promise<User | undefined> {
+  async findOne(id: string): Promise<UserSelect | undefined> {
     const [foundUser] = await this.db
       .select()
       .from(user)
@@ -72,8 +70,8 @@ export class UserService {
 
   async update(
     id: string,
-    updateUserDto: Partial<NewUser>
-  ): Promise<User | undefined> {
+    updateUserDto: UserUpdate
+  ): Promise<UserSelect | undefined> {
     const [updatedUser] = await this.db
       .update(user)
       .set({ ...updateUserDto, updatedAt: new Date() })
@@ -82,7 +80,7 @@ export class UserService {
     return updatedUser;
   }
 
-  async remove(id: string): Promise<User | undefined> {
+  async remove(id: string): Promise<UserSelect | undefined> {
     const [deletedUser] = await this.db
       .delete(user)
       .where(eq(user.id, id))

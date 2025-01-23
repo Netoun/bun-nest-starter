@@ -1,9 +1,10 @@
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compression from 'compression';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { openApiDocument } from 'src/app.contract';
+import { SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const appModule = await AppModule.forRoot();
@@ -37,16 +38,7 @@ async function bootstrap() {
     })
   );
 
-  // Swagger Documentation
-  const config = new DocumentBuilder()
-    .setTitle('NestJS + Bun + Drizzle API')
-    .setDescription('Modern API with NestJS, Bun runtime and Drizzle ORM')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, openApiDocument);
 
   // Start server
   const port = process.env.PORT || 4000;

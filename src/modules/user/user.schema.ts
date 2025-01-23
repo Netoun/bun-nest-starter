@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
 export const user = sqliteTable(
   'user',
@@ -24,5 +25,26 @@ export const user = sqliteTable(
   })
 );
 
-export type User = InferSelectModel<typeof user>;
-export type NewUser = InferInsertModel<typeof user>;
+export const userSelectSchema = createSelectSchema(user).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+export type UserSelect = z.infer<typeof userSelectSchema>;
+
+export const userInsertSchema = createInsertSchema(user).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type UserInsert = z.infer<typeof userInsertSchema>;
+export const userUpdateSchema = createUpdateSchema(user).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type UserUpdate = z.infer<typeof userUpdateSchema>;
+
+export const usersSelectSchema = userSelectSchema.extend({
+  todoCount: z.number(),
+}).array();
+export type UsersSelect = z.infer<typeof usersSelectSchema>;

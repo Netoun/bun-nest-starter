@@ -7,6 +7,7 @@ A modern starter project using NestJS as the framework, Bun as the JavaScript/Ty
 - **[NestJS](https://nestjs.com/)** - Progressive Node.js framework
 - **[Bun](https://bun.sh/)** - Ultra-fast JavaScript/TypeScript runtime
 - **[Drizzle](https://orm.drizzle.team/)** - Modern TypeScript ORM
+- **[ts-rest](https://ts-rest.com/)** - End-to-end type-safe REST API contracts
 - **[Vitest](https://vitest.dev/)** - Unit testing framework
 - **[Biome](https://biomejs.dev/)** - Fast formatter, linter, and more
 
@@ -103,3 +104,14 @@ Each module is self-contained and follows SOLID principles.
 
 The project uses:
 - [Biome](https://biomejs.dev/) for formatting, linting, and import sorting
+
+## 🔄 API Contracts
+
+The project uses [ts-rest](https://ts-rest.com/) to define type-safe API contracts:
+
+- **Contract-First Development**: API contracts are defined in `.contract.ts` files
+- **Type Safety**: End-to-end type safety between client and server
+- **Automatic Validation**: Request/response validation based on contract definitions
+- **OpenAPI Generation**: Automatic OpenAPI/Swagger documentation generation
+
+Contracts are located in their respective module folders and the root `app.contract.ts` file combines all module contracts.

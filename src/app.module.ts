@@ -1,7 +1,6 @@
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { TerminusModule } from '@nestjs/terminus';
 import { redisStore } from 'cache-manager-redis-yet';
 
 @Module({
@@ -29,7 +28,6 @@ export class AppModule {
         UserModule,
         TodoModule,
         HealthModule,
-        TerminusModule,
       ],
       providers: [
         {

@@ -1,63 +1,102 @@
 import {
-  Body,
   Controller,
   Delete,
   Get,
-  Param,
-  ParseUUIDPipe,
   Patch,
   Post,
+  UseInterceptors,
+  Inject,
 } from '@nestjs/common';
-import type { NewTodo, Todo } from './todo.schema';
+import {
+  CacheKey,
+  CacheTTL,
+  CacheInterceptor,
+  CACHE_MANAGER,
+  type Cache,
+} from '@nestjs/cache-manager';
 import { TodoService } from './todo.service';
+import { todoContract } from './todo.contract';
+import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 
-@Controller('users/:userId/todos')
+const TODOS_CACHE_KEY = 'todos-list';
+const TODO_CACHE_KEY = 'todo';
+
+@Controller('todos')
+@UseInterceptors(CacheInterceptor)
 export class TodoController {
-  constructor(private readonly todoService: TodoService) {}
+  constructor(
+    private readonly todoService: TodoService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) {}
 
   @Post()
-  create(
-    @Param('userId', ParseUUIDPipe) userId: string,
-    @Body() createTodoDto: Omit<NewTodo, 'userId'>
-  ): Promise<Todo> {
-    return this.todoService.create({ ...createTodoDto, userId });
+  @TsRestHandler(todoContract.createTodo)
+  async create() {
+    return tsRestHandler(todoContract.createTodo, async ({ body }) => {
+      const todo = await this.todoService.create(body);
+      await this.cacheManager.del(TODOS_CACHE_KEY);
+      return { status: 201 as const, body: todo };
+    });
   }
 
   @Get()
-  findAll(@Param('userId', ParseUUIDPipe) userId: string): Promise<Todo[]> {
-    return this.todoService.findAll(userId);
+  @CacheKey(TODOS_CACHE_KEY)
+  @CacheTTL(30)
+  @TsRestHandler(todoContract.getTodos)
+  async findAll() {
+    return tsRestHandler(todoContract.getTodos, async ({ query }) => {
+      const todos = await this.todoService.findAll({
+        offset: query.offset ?? 0,
+        limit: query.limit ?? 10,
+        userId: query.userId,
+      });
+      return { status: 200 as const, body: todos };
+    });
   }
 
   @Get(':id')
-  findOne(
-    @Param('userId', ParseUUIDPipe) userId: string,
-    @Param('id', ParseUUIDPipe) id: string
-  ): Promise<Todo | undefined> {
-    return this.todoService.findOne(id, userId);
+  @CacheKey(TODO_CACHE_KEY)
+  @CacheTTL(60)
+  @TsRestHandler(todoContract.getTodo)
+  findOne() {
+    return tsRestHandler(todoContract.getTodo, async ({ params }) => {
+      const todo = await this.todoService.findOne(params.id);
+      if (!todo) {
+        return { status: 404 as const, body: { message: 'Todo not found' } };
+      }
+      return { status: 200 as const, body: todo };
+    });
   }
 
   @Patch(':id')
-  update(
-    @Param('userId', ParseUUIDPipe) userId: string,
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateTodoDto: Partial<Omit<NewTodo, 'userId'>>
-  ): Promise<Todo | undefined> {
-    return this.todoService.update(id, userId, updateTodoDto);
+  @TsRestHandler(todoContract.updateTodo)
+  async update() {
+    return tsRestHandler(todoContract.updateTodo, async ({ params, body }) => {
+      const todo = await this.todoService.update(params.id, body);
+      if (!todo) {
+        return { status: 404 as const, body: { message: 'Todo not found' } };
+      }
+      await Promise.all([
+        this.cacheManager.del(`${TODO_CACHE_KEY}:${params.id}`),
+        this.cacheManager.del(TODOS_CACHE_KEY),
+      ]);
+      return { status: 200 as const, body: todo };
+    });
   }
 
   @Delete(':id')
-  remove(
-    @Param('userId', ParseUUIDPipe) userId: string,
-    @Param('id', ParseUUIDPipe) id: string
-  ): Promise<Todo | undefined> {
-    return this.todoService.remove(id, userId);
-  }
-
-  @Patch(':id/toggle')
-  toggleComplete(
-    @Param('userId', ParseUUIDPipe) userId: string,
-    @Param('id', ParseUUIDPipe) id: string
-  ): Promise<Todo | undefined> {
-    return this.todoService.toggleComplete(id, userId);
+  @TsRestHandler(todoContract.deleteTodo)
+  async remove() {
+    return tsRestHandler(todoContract.deleteTodo, async ({ params }) => {
+      const todo = await this.todoService.remove(params.id);
+      if (!todo) {
+        return { status: 404 as const, body: { message: 'Todo not found' } };
+      }
+      await Promise.all([
+        this.cacheManager.del(`${TODO_CACHE_KEY}:${params.id}`),
+        this.cacheManager.del(TODOS_CACHE_KEY),
+      ]);
+      return { status: 200 as const, body: todo };
+    });
   }
 }
