@@ -1,10 +1,10 @@
 import type { Config } from 'drizzle-kit';
 
 export default {
-  schema: './src/modules/**/*.schema.ts',
-  out: './src/modules/db/migrations',
+  schema: './src/schema',
+  out: './src/migrations',
   dialect: 'sqlite',
   dbCredentials: {
     url: process.env.DATABASE_URL || './sqlite.db',
   },
-} satisfies Config;
+} satisfies Config; 

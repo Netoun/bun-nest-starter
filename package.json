@@ -3,10 +3,15 @@
   "version": "0.0.1",
   "private": true,
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
-    "build": "bun run --cwd apps/api build",
+    "build": "bun run build:packages && bun run build:apps",
+    "build:apps": "bun run --cwd apps/api build",
+    "build:packages": "bun run build:db && bun run build:contract",
+    "build:db": "bun run --cwd packages/db build",
+    "build:contract": "bun run --cwd packages/contract build",
     "dev": "bun run --cwd apps/api dev",
     "start": "bun run --cwd apps/api start",
     "test": "bun run --cwd apps/api test",
@@ -15,7 +20,8 @@
     "lint": "biome lint .",
     "check": "biome check --write .",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down"
+    "docker:down": "docker compose down",
+    "typecheck": "bun run --cwd apps/api typecheck"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

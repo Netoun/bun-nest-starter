@@ -1,8 +1,9 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
-import { userInsertSchema, userSelectSchema, usersSelectSchema, userUpdateSchema } from "./user.schema";
-
+import { userZodSchemas } from "@nest-bun-drizzle/db";
 import { extendZodWithOpenApi } from '@anatine/zod-openapi';
+
+const { insert, findOne, findAll, update } = userZodSchemas;
 
 extendZodWithOpenApi(z);
 
@@ -12,9 +13,9 @@ export const userContract = c.router({
     method: "POST",
     path: "/users",
     responses: {
-      201: userSelectSchema,
+      201: findOne,
     },
-    body: userInsertSchema,
+    body: insert,
     summary: "Create a user",
     metadata: { role: "user" } as const,
   },
@@ -22,7 +23,7 @@ export const userContract = c.router({
     method: "GET",
     path: "/users",
     responses: {
-      200: usersSelectSchema.openapi({
+      200: findAll.openapi({
         title: 'List of users',
       }),
       400: z.object({
@@ -45,7 +46,7 @@ export const userContract = c.router({
     method: "GET",
     path: "/users/:id",
     responses: {
-      200: userSelectSchema,
+      200: findOne,
     },
     summary: "Get a user",
     metadata: { role: "guest" } as const,
@@ -54,9 +55,9 @@ export const userContract = c.router({
     method: "PATCH",
     path: "/users/:id",
     responses: {
-      200: userSelectSchema,
+      200: findOne,
     },
-    body: userUpdateSchema,
+    body: update,
     summary: "Update a user",
     metadata: { role: "user" } as const,
   },
@@ -64,9 +65,9 @@ export const userContract = c.router({
     method: "DELETE",
     path: "/users/:id",
     responses: {
-      200: userSelectSchema,
+      200: findOne,
     },
     summary: "Delete a user",
     metadata: { role: "user" } as const,
   },
-});
+}); 

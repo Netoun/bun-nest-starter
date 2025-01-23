@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "566ea983-106b-42cd-8bb1-4510b1bd51ba",
+  "id": "cab25836-31fd-4b1f-add6-17eafb210c16",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "todo": {
@@ -38,7 +38,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "text(36)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -61,17 +61,31 @@
       "indexes": {
         "user_id_idx": {
           "name": "user_id_idx",
-          "columns": ["user_id"],
+          "columns": [
+            "user_id"
+          ],
           "isUnique": false
         },
         "completed_user_id_idx": {
           "name": "completed_user_id_idx",
-          "columns": ["completed", "user_id"],
+          "columns": [
+            "completed",
+            "user_id"
+          ],
           "isUnique": false
         },
-        "todo_created_at_idx": {
-          "name": "todo_created_at_idx",
-          "columns": ["created_at"],
+        "created_at_idx": {
+          "name": "created_at_idx",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "title_idx": {
+          "name": "title_idx",
+          "columns": [
+            "title"
+          ],
           "isUnique": false
         }
       },
@@ -80,8 +94,12 @@
           "name": "todo_user_id_user_id_fk",
           "tableFrom": "todo",
           "tableTo": "user",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -132,22 +150,30 @@
       "indexes": {
         "user_email_unique": {
           "name": "user_email_unique",
-          "columns": ["email"],
+          "columns": [
+            "email"
+          ],
           "isUnique": true
         },
         "email_idx": {
           "name": "email_idx",
-          "columns": ["email"],
+          "columns": [
+            "email"
+          ],
           "isUnique": false
         },
         "created_at_idx": {
           "name": "created_at_idx",
-          "columns": ["created_at"],
+          "columns": [
+            "created_at"
+          ],
           "isUnique": false
         },
         "name_idx": {
           "name": "name_idx",
-          "columns": ["name"],
+          "columns": [
+            "name"
+          ],
           "isUnique": false
         }
       },

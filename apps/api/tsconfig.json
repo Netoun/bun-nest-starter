@@ -16,7 +16,8 @@
     "skipLibCheck": true,
     "incremental": true,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@nest-bun-drizzle/db/schema": ["../../packages/db/src/index.ts"],
     },
     "types": ["bun"]
   }

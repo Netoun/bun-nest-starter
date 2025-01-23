@@ -1,20 +1,16 @@
 import { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { user } from './user.schema';
 import { UserService } from './user.service';
-import { createTestUser, resetTestDatabase, setupTestDatabase } from '@/modules/db/test.setup';
-import { todo } from '@/modules/todo/todo.schema';
+import { createTestUser, setupTestDatabase } from '@/modules/db/test.setup';
+import { todo } from '@nest-bun-drizzle/db';
+import type { Database } from 'bun:sqlite';
 
 describe('UserService', () => {
   let userService: UserService;
-  let db: BunSQLiteDatabase;
-
-  beforeAll(async () => {
-    db = await setupTestDatabase();
-  });
+  let db: BunSQLiteDatabase & { $client: Database };
 
   beforeEach(async () => {
-    await resetTestDatabase(db);
+    db = await setupTestDatabase();
     await createTestUser(db);
     userService = new UserService(db);
   });

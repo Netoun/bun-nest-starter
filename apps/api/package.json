@@ -8,18 +8,16 @@
   "scripts": {
     "build": "bun run build.ts",
     "start": "bun run dist/main.js",
-    "dev": "bun --watch src/main.ts",
+    "dev": "bun --env-file=../../.env --watch src/main.ts",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:coverage": "bun test --coverage",
-    "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
-    "db:seed": "bun run src/modules/db/db.seed.ts",
     "docker:build": "docker buildx build --platform linux/amd64 -t nest-bun-drizzle .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@nest-bun-drizzle/contract": "workspace:*",
+    "@nest-bun-drizzle/db": "workspace:*",
     "@nestjs/cache-manager": "^3.0.0",
     "@nestjs/common": "^11.0.5",
     "@nestjs/core": "^11.0.5",
@@ -32,14 +30,9 @@
     "class-transformer": "0.3.1",
     "class-validator": "^0.14.1",
     "compression": "^1.7.5",
-    "drizzle-kit": "^0.30.2",
-    "drizzle-orm": "^0.38.4",
-    "drizzle-seed": "^0.3.0",
-    "drizzle-zod": "^0.6.1",
     "helmet": "^8.0.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
-    "zod": "^3.24.1"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.2",

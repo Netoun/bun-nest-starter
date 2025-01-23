@@ -1,7 +1,9 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
-import { todoInsertSchema, todoSelectSchema, todosSelectSchema, todoUpdateSchema } from "./todo.schema";
+import { todoZodSchemas } from "@nest-bun-drizzle/db";
 import { extendZodWithOpenApi } from '@anatine/zod-openapi';
+
+const { findOne, findAll, insert, update } = todoZodSchemas;
 
 extendZodWithOpenApi(z);
 
@@ -11,9 +13,9 @@ export const todoContract = c.router({
     method: "POST",
     path: "/todos",
     responses: {
-      201: todoSelectSchema,
+      201: findOne,
     },
-    body: todoInsertSchema,
+    body: insert,
     summary: "Create a todo",
     metadata: { role: "user" } as const,
   },
@@ -21,7 +23,7 @@ export const todoContract = c.router({
     method: "GET",
     path: "/todos",
     responses: {
-      200: todosSelectSchema.openapi({
+      200: findAll.openapi({
         title: 'List of todos',
       }),
       400: z.object({
@@ -44,7 +46,7 @@ export const todoContract = c.router({
     method: "GET",
     path: "/todos/:id",
     responses: {
-      200: todoSelectSchema,
+      200: findOne,
     },
     summary: "Get a todo",
     metadata: { role: "user" } as const,
@@ -53,9 +55,9 @@ export const todoContract = c.router({
     method: "PATCH",
     path: "/todos/:id",
     responses: {
-      200: todoSelectSchema,
+      200: findOne,
     },
-    body: todoUpdateSchema,
+    body: update,
     summary: "Update a todo",
     metadata: { role: "user" } as const,
   },
@@ -63,7 +65,7 @@ export const todoContract = c.router({
     method: "DELETE",
     path: "/todos/:id",
     responses: {
-      200: todoSelectSchema,
+      200: findOne,
     },
     summary: "Delete a todo",
     metadata: { role: "user" } as const,

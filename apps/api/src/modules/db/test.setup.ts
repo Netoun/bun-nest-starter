@@ -1,40 +1,15 @@
-import { Database } from "bun:sqlite";
-import { BunSQLiteDatabase, drizzle } from "drizzle-orm/bun-sqlite";
-import { readMigrationFiles } from "drizzle-orm/migrator";
-import { reset } from "drizzle-seed";
-import { user } from "@/modules/user/user.schema";
-import { todo } from "@/modules/todo/todo.schema";
-import path from "node:path";
+import { user, utils } from "@nest-bun-drizzle/db";
+import { resetDB } from "@nest-bun-drizzle/db/dist/utils";
+import type { Database } from "bun:sqlite";
 
-export const schema = {
-  user,
-  todo,
-};
+type DB = Awaited<ReturnType<typeof utils.runMigrations>>;
 
 export async function setupTestDatabase() {
-  const sqlite = new Database(":memory:");
-  const db = drizzle(sqlite) as BunSQLiteDatabase<Record<string, never>> & {
-    $client: Database;
-  };
-
-  const migrations = await readMigrationFiles({
-    migrationsFolder: path.join(__dirname, "migrations"),
-  });
-
-  for (const migration of migrations) {
-    for (const query of migration.sql) {
-      await db.run(query);
-    }
-  }
-
+  const db = await utils.runMigrations({ isMemory: true });
   return db;
 }
 
-export async function resetTestDatabase(db: BunSQLiteDatabase) {
-  await reset(db, schema);
-}
-
-export async function createTestUser(db: BunSQLiteDatabase) {
+export async function createTestUser(db: DB) {
   const [testUser] = await db
     .insert(user)
     .values({

@@ -17,10 +17,23 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
       - name: Install dependencies
         run: bun install
 
-      - name: Run tests
+      - name: Build packages
+        run: bun run build:packages
+
+      - name: Run API tests
         run: bun test
 
       - name: Run linter
@@ -29,10 +42,11 @@ jobs:
       - name: Run typecheck
         run: bun run typecheck
 
-      - name: Build
+      - name: Build API
         run: bun run build
+        working-directory: apps/api
 
-  docker:
+  docker-api:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -45,5 +59,7 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
+          context: .
+          file: ./apps/api/Dockerfile
           push: false
           tags: nest-bun-drizzle:latest 

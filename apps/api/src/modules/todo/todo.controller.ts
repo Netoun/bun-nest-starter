@@ -15,7 +15,7 @@ import {
   type Cache,
 } from '@nestjs/cache-manager';
 import { TodoService } from './todo.service';
-import { todoContract } from './todo.contract';
+import contract  from '@nest-bun-drizzle/contract';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 
 const TODOS_CACHE_KEY = 'todos-list';
@@ -30,9 +30,9 @@ export class TodoController {
   ) {}
 
   @Post()
-  @TsRestHandler(todoContract.createTodo)
+  @TsRestHandler(contract.todo.createTodo)
   async create() {
-    return tsRestHandler(todoContract.createTodo, async ({ body }) => {
+    return tsRestHandler(contract.todo.createTodo, async ({ body }) => {
       const todo = await this.todoService.create(body);
       await this.cacheManager.del(TODOS_CACHE_KEY);
       return { status: 201 as const, body: todo };
@@ -42,9 +42,9 @@ export class TodoController {
   @Get()
   @CacheKey(TODOS_CACHE_KEY)
   @CacheTTL(30)
-  @TsRestHandler(todoContract.getTodos)
+  @TsRestHandler(contract.todo.getTodos)
   async findAll() {
-    return tsRestHandler(todoContract.getTodos, async ({ query }) => {
+    return tsRestHandler(contract.todo.getTodos, async ({ query }) => {
       const todos = await this.todoService.findAll({
         offset: query.offset ?? 0,
         limit: query.limit ?? 10,
@@ -57,9 +57,9 @@ export class TodoController {
   @Get(':id')
   @CacheKey(TODO_CACHE_KEY)
   @CacheTTL(60)
-  @TsRestHandler(todoContract.getTodo)
+  @TsRestHandler(contract.todo.getTodo)
   findOne() {
-    return tsRestHandler(todoContract.getTodo, async ({ params }) => {
+    return tsRestHandler(contract.todo.getTodo, async ({ params }) => {
       const todo = await this.todoService.findOne(params.id);
       if (!todo) {
         return { status: 404 as const, body: { message: 'Todo not found' } };
@@ -69,9 +69,9 @@ export class TodoController {
   }
 
   @Patch(':id')
-  @TsRestHandler(todoContract.updateTodo)
+  @TsRestHandler(contract.todo.updateTodo)
   async update() {
-    return tsRestHandler(todoContract.updateTodo, async ({ params, body }) => {
+    return tsRestHandler(contract.todo.updateTodo, async ({ params, body }) => {
       const todo = await this.todoService.update(params.id, body);
       if (!todo) {
         return { status: 404 as const, body: { message: 'Todo not found' } };
@@ -85,9 +85,9 @@ export class TodoController {
   }
 
   @Delete(':id')
-  @TsRestHandler(todoContract.deleteTodo)
+  @TsRestHandler(contract.todo.deleteTodo)
   async remove() {
-    return tsRestHandler(todoContract.deleteTodo, async ({ params }) => {
+    return tsRestHandler(contract.todo.deleteTodo, async ({ params }) => {
       const todo = await this.todoService.remove(params.id);
       if (!todo) {
         return { status: 404 as const, body: { message: 'Todo not found' } };

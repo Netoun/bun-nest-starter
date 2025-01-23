@@ -1,14 +1,5 @@
-import { initContract } from '@ts-rest/core';
 import { generateOpenApi } from '@ts-rest/open-api';
-import { todoContract } from '@/modules/todo/todo.contract';
-import { userContract } from '@/modules/user/user.contract';
-
-const c = initContract();
-
-const contract = c.router({
-  users: userContract,
-  todos: todoContract,
-});
+import contract from '@nest-bun-drizzle/contract';
 
 export const openApiDocument = generateOpenApi(contract, {
   info: {

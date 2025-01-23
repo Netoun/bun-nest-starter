@@ -15,7 +15,7 @@ import {
   type Cache,
 } from '@nestjs/cache-manager';
 import { UserService } from './user.service';
-import { userContract } from '@/modules/user/user.contract';
+import contract from '@nest-bun-drizzle/contract';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 
 const USERS_CACHE_KEY = 'users-list';
@@ -30,9 +30,9 @@ export class UserController {
   ) {}
 
   @Post()
-  @TsRestHandler(userContract.createUser)
+  @TsRestHandler(contract.user.createUser)
   async create() {
-    return tsRestHandler(userContract.createUser, async ({ body }) => {
+    return tsRestHandler(contract.user.createUser, async ({ body }) => {
       const user = await this.userService.create(body);
       await this.cacheManager.del(USERS_CACHE_KEY);
       return { status: 201, body: user };
@@ -42,9 +42,9 @@ export class UserController {
   @Get()
   @CacheKey(USERS_CACHE_KEY)
   @CacheTTL(30)
-  @TsRestHandler(userContract.getUsers)
+  @TsRestHandler(contract.user.getUsers)
   async findAll() {
-    return tsRestHandler(userContract.getUsers, async ({ query }) => {
+    return tsRestHandler(contract.user.getUsers, async ({ query }) => {
       const users = await this.userService.findAll({
         offset: query.offset ?? 0,
         limit: query.limit ?? 10,
@@ -56,9 +56,9 @@ export class UserController {
   @Get(':id')
   @CacheKey(USER_CACHE_KEY)
   @CacheTTL(60)
-  @TsRestHandler(userContract.getUser)
+  @TsRestHandler(contract.user.getUser)
   findOne() {
-    return tsRestHandler(userContract.getUser, async ({ params }) => {
+    return tsRestHandler(contract.user.getUser, async ({ params }) => {
       const user = await this.userService.findOne(params.id);
       if (!user) {
         return { status: 404, body: { message: 'User not found' } };
@@ -68,9 +68,9 @@ export class UserController {
   }
 
   @Patch(':id')
-  @TsRestHandler(userContract.updateUser)
+  @TsRestHandler(contract.user.updateUser)
   async update() {
-    return tsRestHandler(userContract.updateUser, async ({ params, body }) => {
+    return tsRestHandler(contract.user.updateUser, async ({ params, body }) => {
       const user = await this.userService.update(params.id, body);
       if (!user) {
         return { status: 404, body: { message: 'User not found' } };
@@ -84,9 +84,9 @@ export class UserController {
   }
 
   @Delete(':id')
-  @TsRestHandler(userContract.deleteUser)
+  @TsRestHandler(contract.user.deleteUser)
   async remove() {
-    return tsRestHandler(userContract.deleteUser, async ({ params }) => {
+    return tsRestHandler(contract.user.deleteUser, async ({ params }) => {
       const user = await this.userService.remove(params.id);
       if (!user) {
         return { status: 404, body: { message: 'User not found' } };
