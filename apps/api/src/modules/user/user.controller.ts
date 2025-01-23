@@ -15,7 +15,7 @@ import {
   type Cache,
 } from '@nestjs/cache-manager';
 import { UserService } from './user.service';
-import { userContract } from 'src/modules/user/user.contract';
+import { userContract } from '@/modules/user/user.contract';
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
 
 const USERS_CACHE_KEY = 'users-list';

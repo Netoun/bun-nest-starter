@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import type { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import { todo } from './todo.schema';
 import type { TodoInsert, TodoUpdate, TodoSelect } from './todo.schema';
-import { Pagination } from 'src/modules/db/db.utils';
+import { Pagination } from '@/modules/db/db.utils';
 
 @Injectable()
 export class TodoService {
@@ -15,8 +15,29 @@ export class TodoService {
   }
 
   async findAll({ offset = 0, limit = 10, userId }: Pagination & { userId?: string }) {
-    const query = userId ? eq(todo.userId, userId) : undefined;
-    return this.db.select().from(todo).where(query).offset(offset).limit(limit);
+    const paginatedTodos = this.db
+      .$with('paginated_todos')
+      .as(
+        this.db
+          .select({ id: todo.id })
+          .from(todo)
+          .orderBy(desc(todo.createdAt))
+          .offset(Number(offset))
+          .limit(Number(limit))
+      );
+
+    return this.db
+      .with(paginatedTodos)
+      .select({
+        id: todo.id,
+        title: todo.title,
+        description: todo.description,
+        completed: todo.completed,
+        userId: todo.userId,
+      })
+      .from(todo)
+      .innerJoin(paginatedTodos, eq(todo.id, paginatedTodos.id))
+      .orderBy(desc(todo.createdAt));
   }
 
   async findOne(id: string) {

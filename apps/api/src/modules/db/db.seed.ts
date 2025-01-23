@@ -5,9 +5,9 @@ import { todo } from '../todo/todo.schema';
 import { user } from '../user/user.schema';
 
 const sqlite = new Database('sqlite.db');
-const db = drizzle(sqlite);
+export const db = drizzle(sqlite);
 
-const schema = {
+export const schema = {
   user,
   todo,
 };

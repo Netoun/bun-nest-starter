@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { asc, count, desc, eq } from 'drizzle-orm';
+import { count, desc, eq } from 'drizzle-orm';
 import type { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
-import type { Pagination } from 'src/modules/db/db.utils';
-import { todo } from 'src/modules/todo/todo.schema';
+import type { Pagination } from '@/modules/db/db.utils';
+import { todo } from '@/modules/todo/todo.schema';
 import { user, UsersSelect, UserUpdate, type UserInsert, type UserSelect } from './user.schema';
 
 
@@ -26,7 +26,7 @@ export class UserService {
         this.db
           .select({ id: user.id })
           .from(user)
-          .orderBy(asc(user.id))
+          .orderBy(desc(user.createdAt))
           .offset(Number(pagination.offset))
           .limit(Number(pagination.limit))
       );

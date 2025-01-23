@@ -3,15 +3,12 @@ import { NestFactory } from '@nestjs/core';
 import compression from 'compression';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
-import { openApiDocument } from 'src/app.contract';
+import { openApiDocument } from '@/app.contract';
 import { SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const appModule = await AppModule.forRoot();
-  const app = await NestFactory.create(appModule, {
-    logger: ['error', 'warn', 'log', 'debug', 'verbose'],
-    bufferLogs: true,
-  });
+  const app = await NestFactory.create(appModule);
 
   // Custom logger format
   const logger = new Logger('NestApplication');
@@ -41,7 +38,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, openApiDocument);
 
   // Start server
-  const port = process.env.PORT || 4000;
+  const port = Bun.env.PORT || 4000;
   await app.listen(port);
 
   // Colorful startup messages
