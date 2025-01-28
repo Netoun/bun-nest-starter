@@ -1,0 +1,23 @@
+{
+  "name": "@nest-bun-drizzle/shared",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "nbd build package --entrypoint ./src/index.ts ",
+    "dev": "nbd build package --entrypoint ./src/index.ts --watch"
+  },
+  "dependencies": {
+    "@nest-bun-drizzle/database": "workspace:*",
+    "@nest-bun-drizzle/tools": "workspace:*",
+    "@ts-rest/core": "^3.30.5",
+    "@anatine/zod-openapi": "^2.2.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "^5.3.3"
+  }
+} 

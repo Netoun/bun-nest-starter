@@ -1,9 +1,36 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
-import { todoZodSchemas } from "@nest-bun-drizzle/db";
-import { extendZodWithOpenApi } from '@anatine/zod-openapi';
+import { todo } from "@nest-bun-drizzle/database";
+import { extendZodWithOpenApi } from "@anatine/zod-openapi";
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
 
-const { findOne, findAll, insert, update } = todoZodSchemas;
+export const todoSelectSchema = createSelectSchema(todo).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+export type TodoSelect = z.infer<typeof todoSelectSchema>;
+
+export const todoInsertSchema = createInsertSchema(todo).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type TodoInsert = z.infer<typeof todoInsertSchema>;
+
+export const todoUpdateSchema = createUpdateSchema(todo).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  userId: true,
+});
+export type TodoUpdate = z.infer<typeof todoUpdateSchema>;
+
+export const todosSelectSchema = todoSelectSchema.array();
+export type TodosSelect = z.infer<typeof todosSelectSchema>;
 
 extendZodWithOpenApi(z);
 
@@ -13,9 +40,9 @@ export const todoContract = c.router({
     method: "POST",
     path: "/todos",
     responses: {
-      201: findOne,
+      201: todoSelectSchema,
     },
-    body: insert,
+    body: todoInsertSchema,
     summary: "Create a todo",
     metadata: { role: "user" } as const,
   },
@@ -23,8 +50,8 @@ export const todoContract = c.router({
     method: "GET",
     path: "/todos",
     responses: {
-      200: findAll.openapi({
-        title: 'List of todos',
+      200: todosSelectSchema.openapi({
+        title: "List of todos",
       }),
       400: z.object({
         type: z.string(),
@@ -46,7 +73,7 @@ export const todoContract = c.router({
     method: "GET",
     path: "/todos/:id",
     responses: {
-      200: findOne,
+      200: todoSelectSchema,
     },
     summary: "Get a todo",
     metadata: { role: "user" } as const,
@@ -55,9 +82,9 @@ export const todoContract = c.router({
     method: "PATCH",
     path: "/todos/:id",
     responses: {
-      200: findOne,
+      200: todoSelectSchema,
     },
-    body: update,
+    body: todoUpdateSchema,
     summary: "Update a todo",
     metadata: { role: "user" } as const,
   },
@@ -65,9 +92,9 @@ export const todoContract = c.router({
     method: "DELETE",
     path: "/todos/:id",
     responses: {
-      200: findOne,
+      200: todoSelectSchema,
     },
     summary: "Delete a todo",
     metadata: { role: "user" } as const,
   },
-}); 
+});

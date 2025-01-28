@@ -1,3 +1,3 @@
-import { utils } from '@nest-bun-drizzle/db';
+import { initDB } from '@nest-bun-drizzle/database';
 
-export const db = utils.initDB({ isMemory: false });
+export const db = initDB({ isMemory: false });

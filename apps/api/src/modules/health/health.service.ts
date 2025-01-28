@@ -40,9 +40,15 @@ export class HealthService {
       await this.db.run('SELECT 1');
       return { status: 'up' };
     } catch (error) {
+      if (error instanceof Error) {
+        return { 
+          status: 'down',
+          error: error.message,
+        };
+      }
       return { 
         status: 'down',
-        error: error.message,
+        error: 'Unknown error',
       };
     }
   }

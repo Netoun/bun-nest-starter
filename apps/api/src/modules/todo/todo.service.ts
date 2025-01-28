@@ -1,13 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq, and, desc } from 'drizzle-orm';
 import type { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
-import { type TodoZodSchemas, type Pagination, todo } from '@nest-bun-drizzle/db';
+import { type Pagination, todo } from '@nest-bun-drizzle/database';
+import type { TodoInsert, TodoSelect, TodoUpdate } from '@nest-bun-drizzle/shared';
 
 @Injectable()
 export class TodoService {
   constructor(@Inject('DATABASE') private readonly db: BunSQLiteDatabase) {}
 
-  async create(data: TodoZodSchemas['insert']) {
+  async create(data: TodoInsert) {
     const [newTodo] = await this.db.insert(todo).values(data).returning();
     return newTodo;
   }
@@ -47,7 +48,7 @@ export class TodoService {
     return foundTodo;
   }
 
-  async update(id: string, data: TodoZodSchemas['update']) {
+  async update(id: string, data: TodoUpdate) {
     const [updatedTodo] = await this.db
       .update(todo)
       .set({ ...data, updatedAt: new Date() })
@@ -64,7 +65,7 @@ export class TodoService {
     return deletedTodo;
   }
 
-  async toggleComplete(id: string, userId: string): Promise<TodoZodSchemas['findOne'] | undefined> {
+  async toggleComplete(id: string, userId: string): Promise<TodoSelect | undefined> {
     const todoToUpdate = await this.findOne(id);
     if (!todoToUpdate) return undefined;
 

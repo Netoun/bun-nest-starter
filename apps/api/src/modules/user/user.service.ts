@@ -2,19 +2,19 @@ import { Inject, Injectable } from "@nestjs/common";
 import { count, desc, eq } from "drizzle-orm";
 import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 import {
-  Pagination,
   todo,
   user,
-  type UserZodSchemas,
-} from "@nest-bun-drizzle/db";
+} from "@nest-bun-drizzle/database";
+import type { UserInsert, UserSelect, UsersSelect } from "@nest-bun-drizzle/shared";
+import type { Pagination } from "@nest-bun-drizzle/shared";
 
 @Injectable()
 export class UserService {
   constructor(@Inject("DATABASE") private readonly db: BunSQLiteDatabase) {}
 
   async create(
-    createUserDto: UserZodSchemas["insert"]
-  ): Promise<UserZodSchemas["findOne"]> {
+    createUserDto: UserInsert
+  ): Promise<UserSelect> {
     const [newUser] = await this.db
       .insert(user)
       .values(createUserDto)
@@ -22,7 +22,7 @@ export class UserService {
     return newUser;
   }
 
-  async findAll(pagination: Pagination): Promise<UserZodSchemas["findAll"]> {
+  async findAll(pagination: Pagination): Promise<UsersSelect> {
     // 1. Select users ids with pagination
     const paginatedUsers = this.db
       .$with("paginated_users")
@@ -64,7 +64,7 @@ export class UserService {
       .orderBy(desc(userTodoCounts.todoCount));
   }
 
-  async findOne(id: string): Promise<UserZodSchemas["findOne"] | undefined> {
+  async findOne(id: string): Promise<UserSelect | undefined> {
     const [foundUser] = await this.db
       .select()
       .from(user)
@@ -74,8 +74,8 @@ export class UserService {
 
   async update(
     id: string,
-    updateUserDto: UserZodSchemas["update"]
-  ): Promise<UserZodSchemas["findOne"] | undefined> {
+    updateUserDto: UserInsert
+  ): Promise<UserSelect | undefined> {
     const [updatedUser] = await this.db
       .update(user)
       .set({ ...updateUserDto, updatedAt: new Date() })
@@ -84,7 +84,7 @@ export class UserService {
     return updatedUser;
   }
 
-  async remove(id: string): Promise<UserZodSchemas["findOne"] | undefined> {
+  async remove(id: string): Promise<UserSelect | undefined> {
     const [deletedUser] = await this.db
       .delete(user)
       .where(eq(user.id, id))

@@ -1,11 +1,10 @@
-import { user, utils } from "@nest-bun-drizzle/db";
-import { resetDB } from "@nest-bun-drizzle/db/dist/utils";
-import type { Database } from "bun:sqlite";
+import { user } from "@nest-bun-drizzle/database";
+import { runMigrations } from "@nest-bun-drizzle/database";
 
-type DB = Awaited<ReturnType<typeof utils.runMigrations>>;
+type DB = Awaited<ReturnType<typeof runMigrations>>;
 
 export async function setupTestDatabase() {
-  const db = await utils.runMigrations({ isMemory: true });
+  const db = await runMigrations({ isMemory: true });
   return db;
 }
 

@@ -6,33 +6,33 @@ import {
   Post,
   UseInterceptors,
   Inject,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
   CacheKey,
   CacheTTL,
   CacheInterceptor,
   CACHE_MANAGER,
   type Cache,
-} from '@nestjs/cache-manager';
-import { UserService } from './user.service';
-import contract from '@nest-bun-drizzle/contract';
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest';
+} from "@nestjs/cache-manager";
+import { UserService } from "./user.service";
+import { contract } from "@nest-bun-drizzle/shared";
+import { tsRestHandler, TsRestHandler } from "@ts-rest/nest";
 
-const USERS_CACHE_KEY = 'users-list';
-const USER_CACHE_KEY = 'user';
+const USERS_CACHE_KEY = "users-list";
+const USER_CACHE_KEY = "user";
 
-@Controller('users')
+@Controller("users")
 @UseInterceptors(CacheInterceptor)
-export class UserController { 
+export class UserController {
   constructor(
     private readonly userService: UserService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
   @Post()
-  @TsRestHandler(contract.user.createUser)
+  @TsRestHandler(contract.userContract.createUser)
   async create() {
-    return tsRestHandler(contract.user.createUser, async ({ body }) => {
+    return tsRestHandler(contract.userContract.createUser, async ({ body }) => {
       const user = await this.userService.create(body);
       await this.cacheManager.del(USERS_CACHE_KEY);
       return { status: 201, body: user };
@@ -42,9 +42,9 @@ export class UserController {
   @Get()
   @CacheKey(USERS_CACHE_KEY)
   @CacheTTL(30)
-  @TsRestHandler(contract.user.getUsers)
+  @TsRestHandler(contract.userContract.getUsers)
   async findAll() {
-    return tsRestHandler(contract.user.getUsers, async ({ query }) => {
+    return tsRestHandler(contract.userContract.getUsers, async ({ query }) => {
       const users = await this.userService.findAll({
         offset: query.offset ?? 0,
         limit: query.limit ?? 10,
@@ -53,27 +53,30 @@ export class UserController {
     });
   }
 
-  @Get(':id')
+  @Get(":id")
   @CacheKey(USER_CACHE_KEY)
   @CacheTTL(60)
-  @TsRestHandler(contract.user.getUser)
+  @TsRestHandler(contract.userContract.getUser)
   findOne() {
-    return tsRestHandler(contract.user.getUser, async ({ params }) => {
+    return tsRestHandler(contract.userContract.getUser, async ({ params }) => {
       const user = await this.userService.findOne(params.id);
       if (!user) {
-        return { status: 404, body: { message: 'User not found' } };
+        return { status: 404, body: { message: "User not found" } };
       }
       return { status: 200, body: user };
     });
   }
 
-  @Patch(':id')
-  @TsRestHandler(contract.user.updateUser)
+  @Patch(":id")
+  @TsRestHandler(contract.userContract.updateUser)
   async update() {
-    return tsRestHandler(contract.user.updateUser, async ({ params, body }) => {
-      const user = await this.userService.update(params.id, body);
+    return tsRestHandler(contract.userContract.updateUser, async ({ params, body }) => {
+      const user = await this.userService.update(params.id, {
+        name: body.name ?? "",
+        email: body.email ?? "",
+      });
       if (!user) {
-        return { status: 404, body: { message: 'User not found' } };
+        return { status: 404, body: { message: "User not found" } };
       }
       await Promise.all([
         this.cacheManager.del(`${USER_CACHE_KEY}:${params.id}`),
@@ -83,13 +86,13 @@ export class UserController {
     });
   }
 
-  @Delete(':id')
-  @TsRestHandler(contract.user.deleteUser)
+  @Delete(":id")
+  @TsRestHandler(contract.userContract.deleteUser)
   async remove() {
-    return tsRestHandler(contract.user.deleteUser, async ({ params }) => {
+    return tsRestHandler(contract.userContract.deleteUser, async ({ params }) => {
       const user = await this.userService.remove(params.id);
       if (!user) {
-        return { status: 404, body: { message: 'User not found' } };
+        return { status: 404, body: { message: "User not found" } };
       }
       await Promise.all([
         this.cacheManager.del(`${USER_CACHE_KEY}:${params.id}`),
@@ -99,4 +102,3 @@ export class UserController {
     });
   }
 }
-

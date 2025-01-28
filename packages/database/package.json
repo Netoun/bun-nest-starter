@@ -1,15 +1,16 @@
 {
-  "name": "@nest-bun-drizzle/db",
+  "name": "@nest-bun-drizzle/database",
   "version": "0.0.1",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./src/index.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && cp -r src/migrations dist/",
+    "build": "nbd build package --entrypoint ./src/index.ts && cp -r src/migrations dist/",
     "generate": "drizzle-kit generate",
     "migrate": "bun run --env-file=../../.env ./src/migrate.ts",
-    "seed": "bun run --env-file=../../.env ./src/seed.ts"
+    "seed": "bun run --env-file=../../.env ./src/seed.ts",
+    "dev": "nbd build package --entrypoint ./src/index.ts --watch"
   },
   "dependencies": {
     "drizzle-kit": "^0.30.2",
@@ -19,7 +20,8 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "typescript": "^5.7.3",
-    "bun-types": "^1.2.0"
+    "@nest-bun-drizzle/tools": "workspace:*",
+    "bun-types": "^1.2.0",
+    "typescript": "^5.7.3"
   }
 }

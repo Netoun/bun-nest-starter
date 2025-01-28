@@ -2,8 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
   },
   "include": ["src/**/*"],
+  "paths": {
+    "@nest-bun-drizzle/database": ["../../packages/database/src/index.ts"]
+  },
   "exclude": ["node_modules", "dist"]
 } 

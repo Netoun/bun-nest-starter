@@ -9,10 +9,7 @@
     "skipLibCheck": true,
     "incremental": true,
     "paths": {
-      "@/*": ["*"],
-      "@nest-bun-drizzle/shared": ["../../packages/shared/src/index.ts"],
-      "@nest-bun-drizzle/database": ["../../packages/database/src/index.ts"],
-      "@nest-bun-drizzle/tools": ["../../packages/tools/src/index.ts"]
+      "@/*": ["*"]
     }
   },
   "include": ["src/**/*"],

@@ -9,10 +9,9 @@ import { reset } from "drizzle-seed";
 import { user } from "./schema/user.schema";
 import { todo } from "./schema/todo.schema";
 
-
-const paginationSchema = z.object({
-  offset: z.coerce.number(),
-  limit: z.coerce.number(),
+export const paginationSchema = z.object({
+  offset: z.number(),
+  limit: z.number(),
 });
 
 export type Pagination = z.infer<typeof paginationSchema>;
@@ -20,7 +19,7 @@ export type Pagination = z.infer<typeof paginationSchema>;
 export function withPagination<T extends SQLiteSelect>(
   qb: T,
   pagination: Pagination
-) {
+): T {
   const { offset, limit } = paginationSchema.parse(pagination);
   return qb.offset(offset).limit(limit);
 }
@@ -29,7 +28,7 @@ type InitDbOptions = {
   isMemory: boolean;
 };
 
-export function initDB(options: InitDbOptions) {
+export function initDB(options: InitDbOptions): BunSQLiteDatabase {
   let dbPath = options.isMemory ? ":memory:" : process.env.DATABASE_URL || "./sqlite.db";
   if (options.isMemory) {
     dbPath = ":memory:";
@@ -46,7 +45,7 @@ type RunMigrationsOptions = {
   isMemory: boolean;
 };
 
-export async function runMigrations(options: RunMigrationsOptions) {
+export async function runMigrations(options: RunMigrationsOptions): Promise<BunSQLiteDatabase> {
   try {
     const db = initDB(options);
     const currentFilePath = fileURLToPath(import.meta.url);
@@ -60,7 +59,7 @@ export async function runMigrations(options: RunMigrationsOptions) {
   }
 }
 
-export function resetDB(db: BunSQLiteDatabase) {
+export function resetDB(db: BunSQLiteDatabase): Promise<void> {
   return reset(db, {
     user,
     todo,

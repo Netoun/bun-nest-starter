@@ -5,8 +5,9 @@ WORKDIR /app
 # Copy root workspace files first
 COPY package.json bun.lockb tsconfig.json ./
 
-COPY packages/db ./packages/db
-COPY packages/contract ./packages/contract
+COPY packages/tools ./packages/tools
+COPY packages/database ./packages/database
+COPY packages/shared ./packages/shared
 
 COPY apps/api/package.json ./apps/api/
 

@@ -2,12 +2,11 @@ import { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 import { beforeEach, describe, expect, it } from "vitest";
 import { TodoService } from "./todo.service";
 import { createTestUser, setupTestDatabase } from "@/modules/db/test.setup";
-import { todo } from "@nest-bun-drizzle/db";
-import type Database from "bun:sqlite";
+import { todo } from "@nest-bun-drizzle/database";
 
 describe("TodoService", () => {
   let todoService: TodoService;
-  let db: BunSQLiteDatabase & { $client: Database };
+  let db: BunSQLiteDatabase;
   
   beforeEach(async () => {
     db = await setupTestDatabase();
